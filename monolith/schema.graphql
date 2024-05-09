@@ -1,9 +1,8 @@
-type Query {
-  ### User accounts
-  user(id: ID!): User
-  "Currently logged-in user"
-  me: User!
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.5", 
+        import: ["@key"])
 
+type Query {
   ### Listings
   "A curated array of listings to feature on the homepage"
   featuredListings: [Listing!]!
@@ -30,10 +29,6 @@ type Query {
 }
 
 type Mutation {
-  ### Accounts
-  "Updates the logged-in user's profile information"
-  updateProfile(updateProfileInput: UpdateProfileInput): UpdateProfileResponse!
-
   ### Listings
   "Creates a new listing for the currently authenticated host"
   createListing(listing: CreateListingInput!): CreateListingResponse!
@@ -71,56 +66,20 @@ interface MutationResponse {
 "Represents an Airlock user's common properties"
 interface User {
   id: ID!
-  "The user's first and last name"
-  name: String!
-  "The user's profile photo URL"
-  profilePicture: String!
 }
 
 "A host is a type of Airlock user. They own listings."
-type Host implements User {
+type Host implements User @key(fields: "id") {
   id: ID!
-  "The user's first and last name"
-  name: String!
-  "The user's profile photo URL"
-  profilePicture: String!
-  "The host's profile bio description, will be shown in the listing"
-  profileDescription: String!
   "The overall calculated rating for the host"
   overallRating: Float
 }
 
 "A guest is a type of Airlock user. They book places to stay."
-type Guest implements User {
+type Guest implements User @key(fields: "id") {
   id: ID!
-  "The user's first and last name"
-  name: String!
-  "The user's profile photo URL"
-  profilePicture: String!
   "Amount of money in the guest's wallet"
   funds: Float!
-}
-
-"Fields that can be updated"
-input UpdateProfileInput {
-  "The user's first and last name"
-  name: String
-  "The user's profile photo URL"
-  profilePicture: String
-  "The host's profile bio description, will be shown in the listing"
-  profileDescription: String
-}
-
-"The response after updating a profile"
-type UpdateProfileResponse implements MutationResponse {
-  "Similar to HTTP status code, represents the status of the mutation"
-  code: Int!
-  "Indicates whether the mutation was successful"
-  success: Boolean!
-  "Human-readable message for the UI"
-  message: String!
-  "Updated user"
-  user: User
 }
 
 ### Listings
@@ -329,51 +288,6 @@ type CreateBookingResponse implements MutationResponse {
   message: String!
   "The newly-created booking"
   booking: NewBookingResponse
-}
-
-### Reviews
-
-"A review consists of a numerical rating and written text. It can be written by a host or a guest."
-type Review {
-  id: ID!
-  "Written comment the author has written about the review target"
-  text: String!
-  "User that wrote the review"
-  author: User!
-  "The numerical rating for the review target, on a scale of 1-5, with 5 being excellent."
-  rating: Float!
-}
-
-"ReviewInput is the bare minimum needed to submit a review, not tied to any target."
-input ReviewInput {
-  text: String!
-  rating: Float!
-}
-
-"The response after submitting reviews for both host and location together."
-type SubmitHostAndLocationReviewsResponse implements MutationResponse {
-  "Similar to HTTP status code, represents the status of the mutation"
-  code: Int!
-  "Indicates whether the mutation was successful"
-  success: Boolean!
-  "Human-readable message for the UI"
-  message: String!
-  "Newly created review about the host"
-  hostReview: Review
-  "Newly created review about the location"
-  locationReview: Review
-}
-
-"The response after submitting reviews for a guest."
-type SubmitGuestReviewResponse implements MutationResponse {
-  "Similar to HTTP status code, represents the status of the mutation"
-  code: Int!
-  "Indicates whether the mutation was successful"
-  success: Boolean!
-  "Human-readable message for the UI"
-  message: String!
-  "Newly created review about the guest"
-  guestReview: Review
 }
 
 ### Payments

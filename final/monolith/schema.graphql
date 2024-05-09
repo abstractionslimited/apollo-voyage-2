@@ -68,6 +68,12 @@ interface User {
   id: ID!
 }
 
+type SubmitHostAndLocationReviewsResponse {
+  success: Boolean!
+  message: String
+  # You can add other fields as needed
+}
+
 "A host is a type of Airlock user. They own listings."
 type Host implements User @key(fields: "id") {
   id: ID!
@@ -288,51 +294,6 @@ type CreateBookingResponse implements MutationResponse {
   message: String!
   "The newly-created booking"
   booking: NewBookingResponse
-}
-
-### Reviews
-
-"A review consists of a numerical rating and written text. It can be written by a host or a guest."
-type Review {
-  id: ID!
-  "Written comment the author has written about the review target"
-  text: String!
-  "User that wrote the review"
-  author: User!
-  "The numerical rating for the review target, on a scale of 1-5, with 5 being excellent."
-  rating: Float!
-}
-
-"ReviewInput is the bare minimum needed to submit a review, not tied to any target."
-input ReviewInput {
-  text: String!
-  rating: Float!
-}
-
-"The response after submitting reviews for both host and location together."
-type SubmitHostAndLocationReviewsResponse implements MutationResponse {
-  "Similar to HTTP status code, represents the status of the mutation"
-  code: Int!
-  "Indicates whether the mutation was successful"
-  success: Boolean!
-  "Human-readable message for the UI"
-  message: String!
-  "Newly created review about the host"
-  hostReview: Review
-  "Newly created review about the location"
-  locationReview: Review
-}
-
-"The response after submitting reviews for a guest."
-type SubmitGuestReviewResponse implements MutationResponse {
-  "Similar to HTTP status code, represents the status of the mutation"
-  code: Int!
-  "Indicates whether the mutation was successful"
-  success: Boolean!
-  "Human-readable message for the UI"
-  message: String!
-  "Newly created review about the guest"
-  guestReview: Review
 }
 
 ### Payments
